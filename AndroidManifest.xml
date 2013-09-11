@@ -26,38 +26,40 @@
             android:name="mx.com.adquira.tcmp.TcmPay"
             android:label="@string/title_activity_tcm_pay" >
         </activity>
-         <service
-             android:name="mx.com.adquira.cv.tcmpintents.TCMLoginService"
-             android:exported="true"
-             >
+
+        <service
+            android:name="mx.com.adquira.cv.tcmpintents.TCMLoginService"
+            android:exported="true" >
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-         </service>  
-         <service
-             android:name="mx.com.adquira.cv.tcmpintents.TCMEMVPaymentService"
-             android:exported="true"
-             >
+        </service>
+        <service
+            android:name="mx.com.adquira.cv.tcmpintents.TCMEMVPaymentService"
+            android:exported="true" >
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-         </service>
-         <service
-             android:name="mx.com.adquira.cv.tcmpintents.TCMSwipePaymentService"
-             android:exported="true"
-             >
+        </service>
+        <service
+            android:name="mx.com.adquira.cv.tcmpintents.TCMSwipePaymentService"
+            android:exported="true" >
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-         </service> 
-         <service
-             android:name="mx.com.adquira.cv.tcmpintents.TCMPrintService"
-             android:exported="true"
-             >
+        </service>
+        <service
+            android:name="mx.com.adquira.cv.tcmpintents.TCMPrintService"
+            android:exported="true" >
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-         </service> 
+        </service>
+
+        <activity
+            android:name="mx.com.adquira.tcmp.TcmShowResults"
+            android:label="@string/title_activity_tcm_show_results" >
+        </activity>
     </application>
 
 </manifest>
