@@ -1,22 +1,12 @@
 package mx.com.adquira.tcmp;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import mx.com.adquira.cv.util.FontDefine;
-import mx.com.adquira.cv.dto.PaymentRequestDto;
-import mx.com.adquira.cv.helperobjects.Constants;
-import mx.com.adquira.cv.helperobjects.TCMPaymentEMVResponse;
-import mx.com.adquira.cv.helperobjects.TCMPrintExtra;
-import mx.com.adquira.cv.helperobjects.TCMResponse;
+import android.os.Bundle;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,9 +14,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import mx.com.adquira.cv.dto.PaymentRequestDto;
+import mx.com.adquira.cv.helperobjects.Constants;
+import mx.com.adquira.cv.helperobjects.TCMPaymentEMVResponse;
+import mx.com.adquira.cv.helperobjects.TCMResponse;
 
 public class TcmPay extends Activity implements AdapterView.OnItemSelectedListener {
 	
@@ -38,8 +31,6 @@ public class TcmPay extends Activity implements AdapterView.OnItemSelectedListen
 	private Spinner payCategory;
 	private TextView payResult;
 	private CheckBox checkEMV;
-	private TextView btnPrintTest;
-	private ProgressBar mProgress;
 	
 	private String token = "";
 	private Intent fromIntent;
@@ -51,12 +42,9 @@ public class TcmPay extends Activity implements AdapterView.OnItemSelectedListen
 	private String orderId;
 	private int payCat;
 	private boolean forceReconnect = false;
-	private static long lStartTime;
-	private static long lEndTime;
 	
 	private IntentFilter filter = new IntentFilter("mx.com.adquira.cv.tcmpintents.EMV_PAYMENT_ACTION");
 	private ResponseReceiver receiver = new ResponseReceiver();
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,11 +59,6 @@ public class TcmPay extends Activity implements AdapterView.OnItemSelectedListen
 		payCategory = (Spinner) findViewById(R.id.payCategory);
 		checkEMV = (CheckBox) findViewById(R.id.checkEMV);
 		payResult = (TextView)findViewById(R.id.textPayResult);
-		btnPrintTest = (TextView)findViewById(R.id.printTest);
-		mProgress = (ProgressBar) findViewById(R.id.paymentProgressBar);
-		
-		btnPrintTest.setVisibility(View.INVISIBLE);
-		mProgress.setVisibility(4);
 		
 		txtOrderId.setText("PB"+Math.rint(Math.random()*10000));
 		txtConcepto.setText("TEST");
@@ -100,18 +83,8 @@ public class TcmPay extends Activity implements AdapterView.OnItemSelectedListen
 		
 		forceReconnect = true;
 		
-		btnPrintTest.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				printTest();
-			}
-
-		});
-		
 		btnPagar.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				mProgress.setVisibility(0); // Visible
 				monto = txtMonto.getText().toString();
 				concepto = txtConcepto.getText().toString();
 				orderId = txtOrderId.getText().toString();
@@ -120,6 +93,14 @@ public class TcmPay extends Activity implements AdapterView.OnItemSelectedListen
 						", un "+concepto+" de cat."+payCat);
 				
 				pago(Float.parseFloat(monto),orderId, concepto,""+payCat);
+
+			/*	myPaymentResponse = null;
+				
+				if(radioEmv.isChecked()){
+					pago(monto, concepto, orderId);
+				}else if(radioSwipe.isChecked()){
+					pagoSwipe(monto, concepto, orderId);
+				} */
 			}
 		});
 	}
@@ -127,7 +108,6 @@ public class TcmPay extends Activity implements AdapterView.OnItemSelectedListen
 	private void pago(float monto, String orderId, String concepto, String category){
 		
 		Intent myIntent = new Intent();		
-		lStartTime = System.currentTimeMillis();
 		if(checkEMV.isChecked()) {
 			myIntent.setComponent(new ComponentName("mx.com.adquira.cv.tcmpintents","mx.com.adquira.cv.tcmpintents.TCMEMVPaymentService")); 
 		} else {
@@ -145,16 +125,15 @@ public class TcmPay extends Activity implements AdapterView.OnItemSelectedListen
 	{
 	    // Called when the BroadcastReceiver gets an Intent it's registered to receive
 	    public void onReceive(Context context, Intent intent) {
-	    	mProgress.setVisibility(8); //8=GONE - 4=INVISIBLE
+	    	// mProgress.setVisibility(8); //8=GONE - 4=INVISIBLE
 	    	String approval = "";
     		String trxID = "";
-    		lEndTime = System.currentTimeMillis();
-    		long difference = lEndTime - lStartTime;
+		
 	    	if(intent.hasExtra(Constants.EMV_RESPONSE)){
 	    		TCMPaymentEMVResponse resp = (TCMPaymentEMVResponse)intent.getSerializableExtra(Constants.EMV_RESPONSE);
 	    		approval = resp.getAuthCode();
 	    		trxID = resp.getTransactionId();
-	    		payResult.setText("Aprobaci—n: "+approval+", ref. "+trxID+"\nTiempo: "+difference+"ms.");
+	    		payResult.setText("Aprobaci—n: "+approval+", ref. "+trxID);
 	    	} else {
 	    		if(intent.hasExtra(Constants.ERROR_RESPONSE)) {
 	    			TCMResponse errorResponse = (TCMResponse)intent.getSerializableExtra(Constants.ERROR_RESPONSE);
@@ -192,48 +171,6 @@ public class TcmPay extends Activity implements AdapterView.OnItemSelectedListen
 		payCat = 0;
 	}
 
-	private void printTest() {
-		Intent myIntent = new Intent();		
-		myIntent.setComponent(new ComponentName("mx.com.adquira.cv.tcmpintents","mx.com.adquira.cv.tcmpintents.TCMPrintService"));    
-		myIntent.addCategory("android.intent.category.LAUNCHER");	
-		
-		TCMPrintExtra print = new TCMPrintExtra();
-		print.setPrintExtras("Prueba de impresion unica linea");
-		myIntent.putExtra("tcm_print_extras", print );
-		this.startService(myIntent);
-
-		TCMPrintExtra[] printArray = new TCMPrintExtra[3];
-		print = new TCMPrintExtra();
-		print.setPrintExtras("- 1) Print multilinea -");
-		printArray[0] = print;
-		
-		print = new TCMPrintExtra();
-		print.setImage(true);
-		
-		InputStream openRawResource = getResources().openRawResource(R.drawable.pay_logo);
-		try {
-			byte[] data = new byte[openRawResource.available()];
-			openRawResource.read(data);
-			Log.d("TcmPay", "pay logo size: " + data.length);
-			print.setImage_resource(data);
-		} catch (IOException e) {
-			e.printStackTrace();
-			Log.e("TcmPay", "", e);
-		}
-		printArray[1] = print;
-		
-		print = new TCMPrintExtra();
-		print.setPrintExtras("- 3) ultima...... -");
-		print.setCharPrintSize(FontDefine.FONT_48PX);
-		print.setPrintJutification(FontDefine.Align_CENTER);
-		printArray[2] = print;
-		
-		myIntent.putExtra("tcm_print_extras", printArray );
-		this.startService(myIntent);
-		
-		
-	}
-	
 	@Override
 	protected void onDestroy()
 	{

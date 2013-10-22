@@ -90,22 +90,4 @@
         android:checked="true"
         android:text="@string/emv_swipe_check" />
 
-    <Button
-        android:id="@+id/printTest"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textPayResult"
-        android:layout_alignRight="@+id/textPayResult"
-        android:layout_alignTop="@+id/textPayResult"
-        android:layout_marginTop="32dp"
-        android:text="Print Test" />
-
-    <ProgressBar
-        android:id="@+id/paymentProgressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/editPayConcept"
-        android:layout_centerHorizontal="true" />
-
 </RelativeLayout>
